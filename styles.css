@@ -1,0 +1,652 @@
+/* =========================================================================
+    RESET BÁSICO
+    Quita los márgenes/paddings por defecto que pone cada navegador y hace
+    que "width"/"height" incluyan el padding y el borde (box-sizing:
+    border-box), para que el tamaño de los elementos sea más predecible.
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Colores del fondo animado (mesh de manchas difuminadas).
+    Tema claro por defecto: profesional, tonos fríos y neutros muy claros.
+    Se sobrescriben en tema oscuro más abajo: fríos y oscuros (verde/azul/negro).
+    Al definirse como "custom properties" (variables CSS) en :root, se pueden
+    redefinir por completo dentro de [data-theme="dark"] sin tocar el resto
+    de reglas que las usan (#fondo-blob-stage, .mancha-1, etc.). */
+:root {
+    --fondo-base-1: #f8fafc;
+    --fondo-base-2: #eef1f6;
+
+    --mancha-1: #dbe6f2;
+    --mancha-2: #e4ded2;
+    --mancha-3: #d2e3e0;
+    --mancha-4: #e6e3ef;
+
+    /* Color de acento para la sección Inicio (nombre, rol, anillo de la foto).
+       Se redefine en tema oscuro más abajo, igual que el resto de variables. */
+    --acento: #2f5fc7;
+}
+
+body {
+    font-family: system-ui, sans-serif; /* usa la fuente del sistema operativo, sin cargar fuentes externas */
+    line-height: 1.6;
+    color: #222;
+    background: transparent; /* el color de fondo lo da #fondo-blob-stage, detrás de todo */
+}
+
+img {
+    max-width: 100%; /* ninguna imagen se sale de su contenedor */
+    display: block; /* quita el pequeño espacio fantasma que dejan las imágenes en modo inline */
+}
+
+a {
+    color: inherit; /* los enlaces heredan el color del texto en vez del azul/morado por defecto */
+    text-decoration: none; /* sin subrayado */
+}
+
+
+/* =========================================================================
+    FONDO ANIMADO: MESH DE MANCHAS DE COLOR DIFUMINADAS
+    Capa fija a pantalla completa, detrás de todo el contenido.
+    Varias manchas de color muy desenfocadas que se solapan y se
+    mueven despacio, dando un degradado suave tipo "mesh gradient".
+   ========================================================================= */
+#fondo-blob-stage {
+    position: fixed; /* se queda fijo aunque se haga scroll */
+    inset: 0; /* equivale a top/right/bottom/left: 0 → cubre toda la pantalla */
+    z-index: -1; /* lo manda detrás de todo el contenido normal */
+    overflow: hidden; /* recorta las manchas que sobresalen del viewport */
+    background: linear-gradient(135deg, var(--fondo-base-1) 0%, var(--fondo-base-2) 100%);
+    transition: background 0.6s ease; /* transición suave al cambiar de tema */
+}
+
+#fondo-blob-stage .mancha {
+    position: absolute;
+    width: 65vmax;  /* tamaño relativo al lado más grande de la ventana, para que escale bien en cualquier pantalla */
+    height: 65vmax;
+    border-radius: 50%; /* círculo perfecto */
+    filter: blur(90px); /* el desenfoque fuerte es lo que crea el efecto "mesh gradient" en vez de círculos nítidos */
+    opacity: 0.9;
+    will-change: transform; /* pista al navegador para optimizar la animación de transform */
+    transition: background 0.6s ease; /* transición suave del color al cambiar de tema */
+}
+
+/* Cada mancha usa una variable de color distinta, se coloca en una esquina
+    distinta (para repartirse por toda la pantalla) y tiene su propia
+    animación con duración ligeramente distinta, para que el movimiento
+    conjunto no se vea repetitivo/sincronizado. */
+.mancha-1 {
+    background: var(--mancha-1);
+    top: -18%;
+    left: -12%;
+    animation: flotar-1 24s ease-in-out infinite;
+}
+
+.mancha-2 {
+    background: var(--mancha-2);
+    top: -22%;
+    right: -16%;
+    animation: flotar-2 28s ease-in-out infinite;
+}
+
+.mancha-3 {
+    background: var(--mancha-3);
+    bottom: -20%;
+    left: -14%;
+    animation: flotar-3 26s ease-in-out infinite;
+}
+
+.mancha-4 {
+    background: var(--mancha-4);
+    bottom: -16%;
+    right: -12%;
+    animation: flotar-4 30s ease-in-out infinite;
+}
+
+/* Cada keyframe desplaza y agranda ligeramente la mancha a mitad de la
+    animación y vuelve a su posición original al final, creando un
+    movimiento de "respiración" continuo (infinite + ease-in-out). */
+@keyframes flotar-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(6%, 8%) scale(1.1); }
+}
+
+@keyframes flotar-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-7%, 6%) scale(1.08); }
+}
+
+@keyframes flotar-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(5%, -7%) scale(1.12); }
+}
+
+@keyframes flotar-4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-6%, -5%) scale(1.06); }
+}
+
+
+/* =========================================================================
+   HEADER Y NAVEGACIÓN
+   ========================================================================= */
+header {
+    position: sticky; /* se queda pegado arriba al hacer scroll, en vez de fixed, respeta el flujo del documento */
+    top: 1rem; /* separación desde arriba cuando queda "pegado" */
+    z-index: 10; /* por encima del contenido normal */
+    background: transparent;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center; /* centra la píldora de navegación horizontalmente */
+}
+
+.nav-pildora {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem; /* espacio entre enlaces/separadores/botones */
+    flex-wrap: wrap; /* si no cabe todo en una línea (pantallas pequeñas), pasa a la siguiente */
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 999px; /* valor muy alto = forma de píldora/cápsula */
+    padding: 0.55rem 1.4rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* sombra suave para que "flote" sobre el fondo */
+}
+
+.nav-pildora a {
+    font-size: 0.95rem;
+    white-space: nowrap; /* evita que el texto de un enlace se parta en dos líneas */
+}
+
+.nav-pildora a:hover {
+    opacity: 0.65; /* leve atenuación al pasar el ratón, como feedback visual */
+}
+
+.separador {
+    color: #ccc;
+    user-select: none; /* evita que el punto "·" se seleccione sin querer al hacer doble clic cerca */
+}
+
+/* Selector de idioma (por ahora solo visual) */
+.selector-idioma-visual {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: none; /* quita el estilo por defecto de <button> */
+    font: inherit; /* hereda tipografía del resto del menú en vez de la fuente por defecto de los botones */
+    font-size: 0.95rem;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.selector-idioma-visual:hover {
+    opacity: 0.65;
+}
+
+.icono-idioma {
+    font-size: 0.8rem;
+}
+
+/* Interruptor de tema: la "pista" (fondo ovalado) del switch */
+.interruptor-tema {
+    position: relative; /* para poder posicionar dentro los iconos y la perilla con "absolute" */
+    width: 3.4rem;
+    height: 1.8rem;
+    flex-shrink: 0; /* no se encoge aunque el menú esté apretado */
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    background: #eee;
+    padding: 0;
+    cursor: pointer;
+}
+
+.interruptor-icono {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* centra verticalmente el icono respecto a la pista */
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.interruptor-sol {
+    left: 0.35rem;
+    color: #f5a623;
+}
+
+.interruptor-luna {
+    right: 0.35rem;
+    color: #777;
+}
+
+/* La "perilla" (círculo) que se desliza de un lado a otro del interruptor */
+.interruptor-perilla {
+    position: absolute;
+    top: 0.15rem;
+    left: 0.15rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.25s ease, background 0.25s ease; /* anima el deslizamiento y el cambio de color */
+}
+
+/* Cuando <html> tiene data-theme="dark" (lo pone script.js), la perilla
+   se desplaza hacia la derecha y cambia de color claro a oscuro */
+[data-theme="dark"] .interruptor-perilla {
+    transform: translateX(1.55rem);
+    background: #222;
+}
+
+
+/* =========================================================================
+    SECCIONES
+    Reglas generales compartidas por todas las <section>: ancho máximo
+    centrado y espaciado vertical, más los tamaños base de los títulos.
+   ========================================================================= */
+section {
+    max-width: 900px;
+    margin: 0 auto; /* centra la sección horizontalmente */
+    padding: 4rem 1rem; /* separación vertical entre secciones + margen lateral en pantallas estrechas */
+}
+
+/* Al ser la última sección de la página, necesita más aire por debajo
+   para que el contenido no quede pegado al borde inferior de la ventana */
+#contacto {
+    padding-bottom: 8rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+
+/* ===== Inicio ===== */
+#inicio {
+    display: flex;
+    align-items: center;
+    /* El orden en el HTML ya pone el texto primero y la <img> después,
+       así que con flex normal (sin "row-reverse" ni "order") la foto
+       queda a la derecha en pantallas anchas de forma natural. */
+    justify-content: space-between; /* texto a un lado, foto al otro, con espacio entre ambos */
+    gap: 3rem;
+    flex-wrap: wrap; /* en pantallas estrechas, la foto pasa debajo del texto */
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.inicio-texto {
+    flex: 1 1 380px; /* puede crecer, pero no baja de 380px antes de saltar de línea */
+    max-width: 560px; /* evita líneas de texto demasiado largas cuando hay mucho ancho libre */
+}
+
+.inicio-texto h1 {
+    font-size: 2.75rem;
+    line-height: 1.15;
+}
+
+/* Resalta el nombre propio dentro del h1 con el color de acento */
+.nombre-destacado {
+    color: var(--acento);
+}
+
+.inicio-texto h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--acento);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.01em;
+}
+
+.inicio-texto p {
+    color: #555;
+    font-size: 1.05rem;
+    max-width: 46ch; /* corta la línea a una longitud cómoda de lectura */
+}
+
+[data-theme="dark"] .inicio-texto p {
+    color: #bbb;
+}
+
+.foto-perfil {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%; /* foto circular */
+    object-fit: cover; /* recorta la imagen para llenar el círculo sin deformarse */
+    flex-shrink: 0; /* la foto no se encoge aunque falte espacio */
+    /* El borde usa el mismo color que el fondo (var(--fondo-base-1)) y el
+       anillo exterior usa var(--mancha-1): ambas variables ya cambian solas
+       entre tema claro/oscuro, así que la foto se adapta sin reglas extra. */
+    border: 5px solid var(--fondo-base-1);
+    box-shadow: 0 0 0 2px var(--mancha-1), 0 16px 36px rgba(0, 0, 0, 0.18);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.foto-perfil:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 0 2px var(--mancha-1), 0 22px 46px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="dark"] .foto-perfil {
+    box-shadow: 0 0 0 2px var(--mancha-2), 0 16px 36px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .foto-perfil:hover {
+    box-shadow: 0 0 0 2px var(--mancha-2), 0 22px 46px rgba(0, 0, 0, 0.7);
+}
+
+
+/* =========================================================================
+    PROYECTOS
+   ========================================================================= */
+
+/* Estilo base para cualquier <article> "suelto" (por ejemplo, si no
+   llevara la clase .proyecto): un recuadro simple con borde. */
+article {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Tarjeta de proyecto: imagen a un lado, info al otro (anula el estilo
+   genérico de <article> de arriba, ya que aquí no se quiere borde ni padding). */
+.proyecto {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    border: none;
+    padding: 0;
+    margin-bottom: 3rem;
+    flex-wrap: wrap; /* en pantallas estrechas, la imagen pasa a ocupar toda la línea y la info debajo */
+}
+
+.proyecto-imagen {
+    flex: 1 1 380px; /* puede crecer/encogerse, pero no baja de 380px antes de saltar de línea */
+}
+
+.proyecto-imagen img {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* mantiene proporción de "pantalla" independientemente del tamaño real de la imagen */
+    object-fit: cover; /* recorta en vez de deformar la imagen para llenar ese recuadro */
+    border-radius: 14px;
+}
+
+.proyecto-info {
+    flex: 1 1 320px;
+}
+
+.proyecto-info h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+.proyecto-etiquetas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Estilo base de cualquier etiqueta (forma de píldora); el color concreto
+   lo pone una de las clases etiqueta-* de abajo */
+.etiqueta {
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: #eee;
+    color: #333;
+}
+
+/* Variantes de color de las etiquetas, para poder diferenciar visualmente
+   distintos tipos de tecnología (frontend, backend, etc.) a elección propia */
+.etiqueta-gris {
+    background: #e2e2e2;
+    color: #333;
+}
+
+.etiqueta-morado {
+    background: #d9c4f7;
+    color: #4a2384;
+}
+
+.etiqueta-azul {
+    background: #c9e0f9;
+    color: #1c4c8c;
+}
+
+.etiqueta-verde {
+    background: #cdeecb;
+    color: #216b3a;
+}
+
+.proyecto-descripcion {
+    color: #555; /* gris para diferenciarla del título, sin ser tan fuerte como el texto principal */
+    margin-bottom: 1.5rem;
+}
+
+.proyecto-enlaces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Botón de enlace (Código / Demo): icono SVG + texto, con borde en forma de píldora */
+.enlace-proyecto {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* espacio entre el icono SVG y el texto */
+    padding: 0.55rem 1.3rem;
+    border: 1px solid currentColor; /* el borde toma automáticamente el color del texto */
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.enlace-proyecto:hover {
+    opacity: 0.7;
+}
+
+
+/* =========================================================================
+   HABILIDADES
+   ========================================================================= */
+.categoria-habilidades {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.categoria-habilidades h3 {
+    min-width: 150px; /* así todas las columnas de título quedan alineadas entre categorías */
+    margin-bottom: 0;
+}
+
+.categoria-habilidades ul {
+    list-style: none; /* sin viñetas */
+    display: flex; /* las tecnologías se muestran en fila en vez de una debajo de otra */
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.categoria-habilidades li {
+    border: 1.5px solid rgba(15, 20, 28, 0.55); /* contorno oscuro semitransparente (tema claro) */
+    padding: 0.4rem 0.8rem;
+    background: transparent; /* solo contorno, sin relleno */
+}
+
+
+/* =========================================================================
+    ESTUDIOS ACADÉMICOS
+    Tarjetas con contorno visible sobre el fondo (sin relleno), a diferencia
+    del estilo genérico de <article> definido más arriba.
+   ========================================================================= */
+#estudios-academicos article {
+    background: transparent;
+    border: 1.5px solid rgba(15, 20, 28, 0.55);
+}
+
+
+/* =========================================================================
+    CONTACTO
+    Bloque de llamada a la acción: texto centrado + dos botones "píldora"
+    (LinkedIn y descarga de CV), reutilizando el mismo estilo de botón con
+    icono que .enlace-proyecto en la sección de Proyectos.
+   ========================================================================= */
+.contacto-cta {
+    text-align: center;
+}
+
+.contacto-texto {
+    font-size: 1.3rem;
+    margin-bottom: 1.75rem;
+}
+
+.contacto-botones {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Botón de contacto (LinkedIn / Descargar CV): icono SVG + texto, mismo
+   patrón visual que .enlace-proyecto pero un poco más grande, con fondo
+   sólido para destacar como llamada a la acción principal de la sección */
+.boton-contacto {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 999px;
+    background: #222;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+}
+
+.boton-contacto:hover {
+    opacity: 0.8;
+}
+
+
+/* =========================================================================
+    FOOTER
+   ========================================================================= */
+footer {
+    border-top: 1px solid #ddd;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+
+/* =========================================================================
+    TEMA OSCURO
+    Se activa con <html data-theme="dark"> (lo pone script.js al pulsar el
+    interruptor). Esta sección SOLO redefine colores: reutiliza toda la
+    estructura/tamaños definidos arriba, así que no hay que repetir layout.
+   ========================================================================= */
+[data-theme="dark"] {
+    color-scheme: dark; /* pide al navegador que use sus propios controles (scrollbar, etc.) en modo oscuro */
+
+    /* Fondo animado en tema oscuro: fríos y muy oscuros (lo opuesto del claro) */
+    --fondo-base-1: #04070a;
+    --fondo-base-2: #0a1420;
+
+    --mancha-1: #0f3d2e;
+    --mancha-2: #123b52;
+    --mancha-3: #0a1f33;
+    --mancha-4: #050a0f;
+
+    --acento: #6fb3ff;
+}
+
+[data-theme="dark"] body {
+    background: #121212;
+    color: #e8e8e8;
+}
+
+[data-theme="dark"] .nav-pildora {
+    background: #000;
+    border-color: #333;
+}
+
+[data-theme="dark"] .separador {
+    color: #555;
+}
+
+[data-theme="dark"] .interruptor-tema {
+    background: #1c1c1c;
+    border-color: #444;
+}
+
+[data-theme="dark"] article {
+    border-color: #333;
+}
+
+/* Etiquetas de Habilidades: contorno claro semitransparente sobre fondo oscuro (invertido respecto al tema claro) */
+[data-theme="dark"] .categoria-habilidades li {
+    border-color: rgba(245, 246, 248, 0.55);
+    background: transparent;
+}
+
+/* Tarjetas de Estudios académicos: mismo criterio de contorno invertido */
+[data-theme="dark"] #estudios-academicos article {
+    background: transparent;
+    border-color: rgba(245, 246, 248, 0.55);
+}
+
+[data-theme="dark"] .proyecto-descripcion {
+    color: #bbb;
+}
+
+/* Variantes de color de etiquetas de proyecto, adaptadas para que sigan
+    teniendo buen contraste sobre fondo oscuro (fondo más saturado/oscuro,
+    texto más claro que en el tema claro) */
+[data-theme="dark"] .etiqueta-gris {
+    background: #333;
+    color: #eee;
+}
+
+[data-theme="dark"] .etiqueta-morado {
+    background: #4a2384;
+    color: #e9d9ff;
+}
+
+[data-theme="dark"] .etiqueta-azul {
+    background: #1c4c8c;
+    color: #d6e9ff;
+}
+
+[data-theme="dark"] .etiqueta-verde {
+    background: #216b3a;
+    color: #d3f6da;
+}
+
+[data-theme="dark"] .boton-contacto {
+    background: #e8e8e8;
+    color: #121212;
+}
+
+[data-theme="dark"] footer {
+    border-top-color: #333;
+}
