@@ -10,41 +10,70 @@
     box-sizing: border-box;
 }
 
-/* Colores del fondo animado (mesh de manchas difuminadas).
+/* Variables de color y tipografía.
     Tema claro por defecto: profesional, tonos fríos y neutros muy claros.
-    Se sobrescriben en tema oscuro más abajo: fríos y oscuros (verde/azul/negro).
-    Al definirse como "custom properties" (variables CSS) en :root, se pueden
-    redefinir por completo dentro de [data-theme="dark"] sin tocar el resto
-    de reglas que las usan (#fondo-blob-stage, .mancha-1, etc.). */
+    Se sobrescriben en tema oscuro al final del archivo: fríos y oscuros
+    (verde/azul/negro). Al definirse como "custom properties" (variables CSS)
+    en :root, se pueden redefinir dentro de [data-theme="dark"] sin tocar el
+    resto de reglas que las usan. */
 :root {
+    /* Fondo animado (mesh de manchas difuminadas) */
     --fondo-base-1: #f8fafc;
     --fondo-base-2: #eef1f6;
-
     --mancha-1: #dbe6f2;
     --mancha-2: #e4ded2;
     --mancha-3: #d2e3e0;
     --mancha-4: #e6e3ef;
 
-    /* Color de acento para la sección Inicio (nombre, rol, anillo de la foto).
-       Se redefine en tema oscuro más abajo, igual que el resto de variables. */
+    /* Color de acento: nombre, rol, enlace activo, placa de la pila... */
     --acento: #2f5fc7;
+    --sobre-acento: #fff; /* texto colocado encima del color de acento */
+
+    /* Textos, contornos y superficies */
+    --texto: #16202e;
+    --texto-suave: #4c5868;
+    --contorno: rgba(15, 20, 28, 0.55); /* etiquetas y tarjetas: oscuro en tema claro */
+    --linea: rgba(15, 20, 28, 0.16); /* líneas finas que no deben llamar la atención */
+    --superficie: rgba(255, 255, 255, 0.72); /* fondo translúcido de la píldora y el panel de contacto */
+    --sombra: rgba(24, 39, 66, 0.14);
+
+    /* Tipografía: si Google Fonts no carga, se usa la fuente del sistema */
+    --fuente: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Desplazamiento suave al pulsar el menú; scroll-padding evita que la
+   píldora fija tape el título de la sección de destino */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    background: var(--fondo-base-1);
 }
 
 body {
-    font-family: system-ui, sans-serif; /* usa la fuente del sistema operativo, sin cargar fuentes externas */
+    font-family: var(--fuente);
+    font-size: 1.0625rem;
     line-height: 1.6;
-    color: #222;
+    color: var(--texto);
     background: transparent; /* el color de fondo lo da #fondo-blob-stage, detrás de todo */
+    transition: color 0.3s ease;
 }
 
 img {
     max-width: 100%; /* ninguna imagen se sale de su contenedor */
+    height: auto;
     display: block; /* quita el pequeño espacio fantasma que dejan las imágenes en modo inline */
 }
 
 a {
     color: inherit; /* los enlaces heredan el color del texto en vez del azul/morado por defecto */
     text-decoration: none; /* sin subrayado */
+}
+
+/* Contorno visible al navegar con teclado (Tab) en cualquier elemento interactivo */
+:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 3px;
+    border-radius: 4px;
 }
 
 
@@ -144,31 +173,75 @@ header {
 }
 
 .nav-pildora {
+    position: relative; /* referencia para el desplegable del menú en móvil */
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.65rem; /* espacio entre enlaces/separadores/botones */
-    flex-wrap: wrap; /* si no cabe todo en una línea (pantallas pequeñas), pasa a la siguiente */
-    background: #fff;
-    border: 1px solid #e4e4e4;
+    background: var(--superficie);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px); /* difumina lo que pasa por detrás: efecto cristal */
+    border: 1px solid var(--linea);
     border-radius: 999px; /* valor muy alto = forma de píldora/cápsula */
     padding: 0.55rem 1.4rem;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* sombra suave para que "flote" sobre el fondo */
+    box-shadow: 0 6px 20px var(--sombra); /* sombra suave para que "flote" sobre el fondo */
 }
 
-.nav-pildora a {
+.nav-enlaces {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.nav-enlaces a {
     font-size: 0.95rem;
     white-space: nowrap; /* evita que el texto de un enlace se parta en dos líneas */
+    transition: color 0.2s ease;
 }
 
-.nav-pildora a:hover {
-    opacity: 0.65; /* leve atenuación al pasar el ratón, como feedback visual */
+.nav-enlaces a:hover {
+    color: var(--acento);
+}
+
+/* Sección que se está viendo ahora mismo (aria-current lo pone script.js) */
+.nav-enlaces a[aria-current="true"] {
+    color: var(--acento);
+    font-weight: 600;
 }
 
 .separador {
-    color: #ccc;
+    color: var(--texto-suave);
+    opacity: 0.55;
     user-select: none; /* evita que el punto "·" se seleccione sin querer al hacer doble clic cerca */
 }
+
+/* Botón de menú (tres rayas): oculto en escritorio, visible en móvil */
+.boton-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.45rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.boton-menu span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    color: var(--texto);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Con el menú abierto, las tres rayas se convierten en una X */
+.boton-menu[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.boton-menu[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.boton-menu[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
 /* Selector de idioma (por ahora solo visual) */
 .selector-idioma-visual {
@@ -186,7 +259,7 @@ header {
 }
 
 .selector-idioma-visual:hover {
-    opacity: 0.65;
+    color: var(--acento);
 }
 
 .icono-idioma {
@@ -200,8 +273,8 @@ header {
     height: 1.8rem;
     flex-shrink: 0; /* no se encoge aunque el menú esté apretado */
     border-radius: 999px;
-    border: 1px solid #ddd;
-    background: #eee;
+    border: 1px solid #d5d9e0;
+    background: #e9ecf1;
     padding: 0;
     cursor: pointer;
 }
@@ -216,12 +289,12 @@ header {
 
 .interruptor-sol {
     left: 0.35rem;
-    color: #f5a623;
+    color: #d98a0b;
 }
 
 .interruptor-luna {
     right: 0.35rem;
-    color: #777;
+    color: #667;
 }
 
 /* La "perilla" (círculo) que se desliza de un lado a otro del interruptor */
@@ -251,9 +324,9 @@ header {
     centrado y espaciado vertical, más los tamaños base de los títulos.
    ========================================================================= */
 section {
-    max-width: 900px;
+    max-width: 1080px;
     margin: 0 auto; /* centra la sección horizontalmente */
-    padding: 4rem 1rem; /* separación vertical entre secciones + margen lateral en pantallas estrechas */
+    padding: 5.5rem 1.5rem; /* separación vertical entre secciones + margen lateral en pantallas estrechas */
 }
 
 /* Al ser la última sección de la página, necesita más aire por debajo
@@ -262,23 +335,67 @@ section {
     padding-bottom: 8rem;
 }
 
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+h1, h2, h3 {
+    line-height: 1.1;
+    font-stretch: 88%; /* eje de anchura de la fuente: algo condensada en los títulos */
+    letter-spacing: -0.015em;
 }
 
 h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+    font-size: clamp(2.2rem, 5vw, 3.4rem); /* clamp(mínimo, ideal, máximo): crece con la ventana entre esos límites */
+    font-weight: 700;
+    margin-bottom: 2.75rem;
 }
 
 h3 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
 
-/* ===== Inicio ===== */
+/* =========================================================================
+    BOTONES
+    Estilo común de las llamadas a la acción de Inicio y Contacto.
+   ========================================================================= */
+.boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.6rem;
+    border-radius: 999px;
+    border: 1.5px solid transparent;
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.boton:hover {
+    transform: translateY(-2px);
+}
+
+/* Principal: relleno sólido, para la acción más importante del bloque */
+.boton-principal {
+    background: var(--acento);
+    color: var(--sobre-acento);
+}
+
+/* Secundario: solo contorno, para no competir con el principal */
+.boton-secundario {
+    border-color: var(--contorno);
+}
+
+.boton-secundario:hover {
+    border-color: var(--acento);
+    color: var(--acento);
+}
+
+
+/* =========================================================================
+    INICIO
+    El nombre, muy grande, es el protagonista. La foto queda a la derecha.
+   ========================================================================= */
 #inicio {
     display: flex;
     align-items: center;
@@ -286,70 +403,96 @@ h3 {
        así que con flex normal (sin "row-reverse" ni "order") la foto
        queda a la derecha en pantallas anchas de forma natural. */
     justify-content: space-between; /* texto a un lado, foto al otro, con espacio entre ambos */
-    gap: 3rem;
-    flex-wrap: wrap; /* en pantallas estrechas, la foto pasa debajo del texto */
+    gap: 3.5rem;
+    min-height: calc(100svh - 5rem); /* ocupa casi toda la primera pantalla */
     padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
 }
 
 .inicio-texto {
-    flex: 1 1 380px; /* puede crecer, pero no baja de 380px antes de saltar de línea */
-    max-width: 560px; /* evita líneas de texto demasiado largas cuando hay mucho ancho libre */
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .inicio-texto h1 {
-    font-size: 2.75rem;
-    line-height: 1.15;
+    font-size: clamp(4rem, 11.5vw, 8.25rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    font-stretch: 80%;
+    margin-bottom: 1.1rem;
+}
+
+/* El saludo va en su propia línea, a tamaño de texto grande */
+.saludo {
+    display: block;
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-stretch: 100%;
+    margin-bottom: 0.6rem;
 }
 
 /* Resalta el nombre propio dentro del h1 con el color de acento */
 .nombre-destacado {
+    display: block;
     color: var(--acento);
 }
 
 .inicio-texto h2 {
-    font-size: 1.35rem;
+    font-size: clamp(1.3rem, 2.4vw, 1.7rem);
     font-weight: 600;
-    color: var(--acento);
+    letter-spacing: 0;
     margin-bottom: 1.5rem;
-    letter-spacing: 0.01em;
 }
 
 .inicio-texto p {
-    color: #555;
-    font-size: 1.05rem;
-    max-width: 46ch; /* corta la línea a una longitud cómoda de lectura */
+    color: var(--texto-suave);
+    font-size: 1.125rem;
+    max-width: 52ch; /* corta la línea a una longitud cómoda de lectura */
 }
 
-[data-theme="dark"] .inicio-texto p {
-    color: #bbb;
+/* Línea de disponibilidad: el punto indica que está abierto a ofertas */
+.inicio-texto .disponibilidad {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    color: var(--texto);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.disponibilidad::before {
+    content: "";
+    width: 0.6rem;
+    height: 0.6rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #1f9d61;
+    box-shadow: 0 0 0 4px rgba(31, 157, 97, 0.2);
+}
+
+.inicio-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.9rem;
 }
 
 .foto-perfil {
-    width: 230px;
-    height: 230px;
+    width: clamp(240px, 29vw, 340px);
+    height: auto;
+    aspect-ratio: 1;
     border-radius: 50%; /* foto circular */
     object-fit: cover; /* recorta la imagen para llenar el círculo sin deformarse */
     flex-shrink: 0; /* la foto no se encoge aunque falte espacio */
     /* El borde usa el mismo color que el fondo (var(--fondo-base-1)) y el
-       anillo exterior usa var(--mancha-1): ambas variables ya cambian solas
+       anillo exterior usa el color de acento: ambas variables ya cambian solas
        entre tema claro/oscuro, así que la foto se adapta sin reglas extra. */
-    border: 5px solid var(--fondo-base-1);
-    box-shadow: 0 0 0 2px var(--mancha-1), 0 16px 36px rgba(0, 0, 0, 0.18);
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.foto-perfil:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 0 0 2px var(--mancha-1), 0 22px 46px rgba(0, 0, 0, 0.24);
-}
-
-[data-theme="dark"] .foto-perfil {
-    box-shadow: 0 0 0 2px var(--mancha-2), 0 16px 36px rgba(0, 0, 0, 0.6);
-}
-
-[data-theme="dark"] .foto-perfil:hover {
-    box-shadow: 0 0 0 2px var(--mancha-2), 0 22px 46px rgba(0, 0, 0, 0.7);
+    border: 6px solid var(--fondo-base-1);
+    box-shadow: 0 0 0 2px var(--acento), 0 20px 44px var(--sombra);
 }
 
 
@@ -360,8 +503,9 @@ h3 {
 /* Estilo base para cualquier <article> "suelto" (por ejemplo, si no
    llevara la clase .proyecto): un recuadro simple con borde. */
 article {
-    border: 1px solid #ddd;
-    padding: 1rem;
+    border: 1.5px solid var(--contorno);
+    border-radius: 14px;
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
 
@@ -370,30 +514,49 @@ article {
 .proyecto {
     display: flex;
     align-items: center;
-    gap: 3rem;
+    gap: 3.5rem;
     border: none;
+    border-radius: 0;
     padding: 0;
-    margin-bottom: 3rem;
-    flex-wrap: wrap; /* en pantallas estrechas, la imagen pasa a ocupar toda la línea y la info debajo */
+    margin-bottom: 5rem;
+}
+
+.proyecto:last-child {
+    margin-bottom: 0;
+}
+
+/* Las tarjetas pares invierten el orden: imagen a la derecha. Así, al añadir
+   más proyectos, la lista va alternando sin tocar nada */
+.proyecto:nth-of-type(even) {
+    flex-direction: row-reverse;
 }
 
 .proyecto-imagen {
-    flex: 1 1 380px; /* puede crecer/encogerse, pero no baja de 380px antes de saltar de línea */
+    flex: 1.25 1 0; /* la imagen ocupa algo más de ancho que el texto */
+    min-width: 0;
+    overflow: hidden; /* recorta la imagen al hacer zoom con el ratón */
+    border-radius: 16px;
+    box-shadow: 0 0 0 1px var(--linea), 0 22px 48px var(--sombra);
 }
 
 .proyecto-imagen img {
     width: 100%;
-    aspect-ratio: 16 / 9; /* mantiene proporción de "pantalla" independientemente del tamaño real de la imagen */
+    aspect-ratio: 16 / 10; /* mantiene proporción de "pantalla" independientemente del tamaño real de la imagen */
     object-fit: cover; /* recorta en vez de deformar la imagen para llenar ese recuadro */
-    border-radius: 14px;
+    transition: transform 0.5s ease;
+}
+
+.proyecto:hover .proyecto-imagen img {
+    transform: scale(1.03);
 }
 
 .proyecto-info {
-    flex: 1 1 320px;
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .proyecto-info h3 {
-    font-size: 1.6rem;
+    font-size: clamp(1.7rem, 3vw, 2.25rem);
     margin-bottom: 1rem;
 }
 
@@ -407,7 +570,7 @@ article {
 /* Estilo base de cualquier etiqueta (forma de píldora); el color concreto
    lo pone una de las clases etiqueta-* de abajo */
 .etiqueta {
-    padding: 0.4rem 0.9rem;
+    padding: 0.3rem 0.85rem;
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
@@ -438,14 +601,14 @@ article {
 }
 
 .proyecto-descripcion {
-    color: #555; /* gris para diferenciarla del título, sin ser tan fuerte como el texto principal */
-    margin-bottom: 1.5rem;
+    color: var(--texto-suave);
+    margin-bottom: 1.6rem;
 }
 
 .proyecto-enlaces {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 /* Botón de enlace (Código / Demo): icono SVG + texto, con borde en forma de píldora */
@@ -454,108 +617,237 @@ article {
     align-items: center;
     gap: 0.5rem; /* espacio entre el icono SVG y el texto */
     padding: 0.55rem 1.3rem;
-    border: 1px solid currentColor; /* el borde toma automáticamente el color del texto */
+    border: 1.5px solid var(--contorno);
     border-radius: 999px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .enlace-proyecto:hover {
-    opacity: 0.7;
+    color: var(--acento);
+    border-color: var(--acento);
 }
 
 
 /* =========================================================================
    HABILIDADES
+   A la izquierda, la pila de placas en 3D; a la derecha, las categorías.
    ========================================================================= */
+.habilidades-contenido {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 3rem;
+    align-items: center;
+}
+
+/* Marco del dibujo. --separacion es la altura entre placas */
+.pila {
+    --lado: 13.5rem;
+    --separacion: 3rem;
+    height: 25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Plano inclinado: toda la pila se gira para verse en perspectiva isométrica.
+   preserve-3d hace que las placas se separen de verdad en el eje Z */
+.pila-plano {
+    position: relative;
+    width: var(--lado);
+    height: var(--lado);
+    transform: translateY(calc(var(--separacion) * 1.2)) rotateX(58deg) rotateZ(-45deg);
+    transform-style: preserve-3d;
+}
+
+/* Cada placa es un cuadrado con contorno. --altura lo define su posición en la pila */
+.placa {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--contorno);
+    border-radius: 14px;
+    background: var(--superficie);
+    box-shadow: 6px 6px 0 -1px var(--linea); /* simula el grosor de la placa */
+    transform: translateZ(calc(var(--altura) * var(--separacion)));
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.25s ease, border-color 0.25s ease;
+}
+
+.placa[data-capa="hardware"] { --altura: 0; }
+.placa[data-capa="herramientas"] { --altura: 1; }
+.placa[data-capa="datos"] { --altura: 2; }
+.placa[data-capa="lenguajes"] { --altura: 3; }
+.placa[data-capa="web"] { --altura: 4; }
+
+/* Placa de la categoría activa: se rellena de acento y se levanta un poco */
+.placa.activa {
+    background: var(--acento);
+    border-color: var(--acento);
+    transform: translateZ(calc(var(--altura) * var(--separacion) + 1.1rem));
+}
+
+/* Montaje de la pila: antes de verse (.por-montar la pone y quita script.js),
+   todas las placas están juntas en el suelo y transparentes. Al entrar en
+   pantalla suben una a una, desde el hardware hasta la interfaz */
+.pila.por-montar .placa {
+    transform: translateZ(0);
+    opacity: 0;
+}
+
+.pila.montando .placa {
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
+    transition-delay: calc(var(--altura) * 0.11s);
+}
+
+/* Lista de categorías: cada fila es una capa, separada por una línea fina */
 .categoria-habilidades {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-bottom: 1.25rem;
+    gap: 1.25rem;
+    padding: 1.15rem 0;
+    border-top: 1px solid var(--linea);
+    cursor: default;
+}
+
+.categoria-habilidades:last-child {
+    border-bottom: 1px solid var(--linea);
 }
 
 .categoria-habilidades h3 {
-    min-width: 150px; /* así todas las columnas de título quedan alineadas entre categorías */
+    flex: 0 0 11rem; /* así todas las columnas de título quedan alineadas entre categorías */
     margin-bottom: 0;
+    font-size: 1.15rem;
+    transition: color 0.2s ease;
+}
+
+.categoria-habilidades.activa h3 {
+    color: var(--acento);
 }
 
 .categoria-habilidades ul {
     list-style: none; /* sin viñetas */
     display: flex; /* las tecnologías se muestran en fila en vez de una debajo de otra */
-    gap: 0.75rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
 }
 
 .categoria-habilidades li {
-    border: 1.5px solid rgba(15, 20, 28, 0.55); /* contorno oscuro semitransparente (tema claro) */
-    padding: 0.4rem 0.8rem;
+    border: 1.5px solid var(--contorno); /* contorno con contraste invertido según el tema */
+    border-radius: 8px;
+    padding: 0.25rem 0.75rem;
     background: transparent; /* solo contorno, sin relleno */
+    font-size: 0.98rem;
 }
 
 
 /* =========================================================================
     ESTUDIOS ACADÉMICOS
-    Tarjetas con contorno visible sobre el fondo (sin relleno), a diferencia
-    del estilo genérico de <article> definido más arriba.
+    Tarjetas con contorno visible sobre el fondo (sin relleno), unidas por
+    una línea vertical con un punto por cada etapa.
    ========================================================================= */
+.linea-estudios {
+    position: relative;
+    max-width: 800px;
+    padding-left: 2.25rem;
+}
+
 #estudios-academicos article {
+    position: relative;
     background: transparent;
-    border: 1.5px solid rgba(15, 20, 28, 0.55);
+}
+
+#estudios-academicos article:last-child {
+    margin-bottom: 0;
+}
+
+/* Punto de la línea, colocado fuera de la tarjeta, a su izquierda */
+#estudios-academicos article::before {
+    content: "";
+    position: absolute;
+    box-sizing: border-box; /* el reset con * no alcanza a los pseudoelementos */
+    left: -2.25rem;
+    top: 1.65rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    border: 2px solid var(--contorno);
+    background: var(--fondo-base-1);
+}
+
+/* Tramo de línea que baja desde este punto hasta el de la tarjeta siguiente
+   (la última no lo lleva, así la línea siempre termina en el último punto) */
+#estudios-academicos article:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: calc(-1.8rem - 1px);
+    top: 2.55rem;
+    bottom: calc(-3.15rem - 3px);
+    width: 2px;
+    background: var(--contorno);
+}
+
+/* La etapa actual se distingue por el punto relleno de acento */
+#estudios-academicos .estudio-actual::before {
+    background: var(--acento);
+    border-color: var(--acento);
+}
+
+#estudios-academicos h3 {
+    margin-bottom: 0.25rem;
+    font-size: 1.35rem;
+}
+
+.estudio-centro {
+    font-weight: 600;
+    color: var(--acento);
+    margin-bottom: 0.6rem;
+}
+
+/* Marca "En curso", arriba a la derecha de la tarjeta */
+.estudio-estado {
+    float: right;
+    margin-left: 1rem;
+    padding: 0.1rem 0.7rem;
+    border: 1.5px solid var(--acento);
+    border-radius: 999px;
+    color: var(--acento);
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 
 /* =========================================================================
     CONTACTO
-    Bloque de llamada a la acción: texto centrado + dos botones "píldora"
-    (LinkedIn y descarga de CV), reutilizando el mismo estilo de botón con
-    icono que .enlace-proyecto en la sección de Proyectos.
+    Bloque de llamada a la acción: panel translúcido con la frase en grande
+    y dos botones "píldora" (LinkedIn y descarga de CV), con el mismo estilo
+    que los botones de la sección Inicio.
    ========================================================================= */
 .contacto-cta {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border: 1px solid var(--linea);
+    border-radius: 24px;
+    background: var(--superficie);
+    box-shadow: 0 22px 48px var(--sombra);
 }
 
 .contacto-texto {
-    font-size: 1.3rem;
-    margin-bottom: 1.75rem;
+    font-size: clamp(1.6rem, 3.6vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-stretch: 88%;
+    max-width: 20ch;
 }
 
 .contacto-botones {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
-    gap: 1rem;
-}
-
-/* Botón de contacto (LinkedIn / Descargar CV): icono SVG + texto, mismo
-   patrón visual que .enlace-proyecto pero un poco más grande, con fondo
-   sólido para destacar como llamada a la acción principal de la sección */
-.boton-contacto {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.75rem 1.6rem;
-    border-radius: 999px;
-    background: #222;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: opacity 0.2s ease;
-}
-
-.boton-contacto:hover {
-    opacity: 0.8;
-}
-
-
-/* =========================================================================
-    FOOTER
-   ========================================================================= */
-footer {
-    border-top: 1px solid #ddd;
-    padding: 2rem 1rem;
-    text-align: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
 }
 
 
@@ -571,27 +863,20 @@ footer {
     /* Fondo animado en tema oscuro: fríos y muy oscuros (lo opuesto del claro) */
     --fondo-base-1: #04070a;
     --fondo-base-2: #0a1420;
-
     --mancha-1: #0f3d2e;
     --mancha-2: #123b52;
     --mancha-3: #0a1f33;
     --mancha-4: #050a0f;
 
     --acento: #6fb3ff;
-}
+    --sobre-acento: #06121f;
 
-[data-theme="dark"] body {
-    background: #121212;
-    color: #e8e8e8;
-}
-
-[data-theme="dark"] .nav-pildora {
-    background: #000;
-    border-color: #333;
-}
-
-[data-theme="dark"] .separador {
-    color: #555;
+    --texto: #eef1f5;
+    --texto-suave: #b4bdc9;
+    --contorno: rgba(245, 246, 248, 0.55); /* etiquetas y tarjetas: claro en tema oscuro */
+    --linea: rgba(245, 246, 248, 0.16);
+    --superficie: rgba(6, 12, 19, 0.68);
+    --sombra: rgba(0, 0, 0, 0.45);
 }
 
 [data-theme="dark"] .interruptor-tema {
@@ -599,24 +884,8 @@ footer {
     border-color: #444;
 }
 
-[data-theme="dark"] article {
-    border-color: #333;
-}
-
-/* Etiquetas de Habilidades: contorno claro semitransparente sobre fondo oscuro (invertido respecto al tema claro) */
-[data-theme="dark"] .categoria-habilidades li {
-    border-color: rgba(245, 246, 248, 0.55);
-    background: transparent;
-}
-
-/* Tarjetas de Estudios académicos: mismo criterio de contorno invertido */
-[data-theme="dark"] #estudios-academicos article {
-    background: transparent;
-    border-color: rgba(245, 246, 248, 0.55);
-}
-
-[data-theme="dark"] .proyecto-descripcion {
-    color: #bbb;
+[data-theme="dark"] .interruptor-luna {
+    color: #c9d3df;
 }
 
 /* Variantes de color de etiquetas de proyecto, adaptadas para que sigan
@@ -642,11 +911,162 @@ footer {
     color: #d3f6da;
 }
 
-[data-theme="dark"] .boton-contacto {
-    background: #e8e8e8;
-    color: #121212;
+
+/* =========================================================================
+    PANTALLAS MEDIANAS Y MÓVILES
+    Por debajo de 900px el menú pasa a desplegable y los bloques de dos
+    columnas se apilan en una sola.
+   ========================================================================= */
+@media (max-width: 900px) {
+    .boton-menu {
+        display: flex;
+    }
+
+    .separador-controles {
+        display: none;
+    }
+
+    .nav-pildora {
+        padding: 0.4rem 1rem 0.4rem 0.6rem;
+    }
+
+    /* Los enlaces pasan a un panel que cae bajo la píldora; se muestra
+       cuando script.js le añade la clase .abierto */
+    .nav-enlaces {
+        display: none;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(18rem, calc(100vw - 2rem));
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.5rem;
+        background: var(--fondo-base-1);
+        border: 1px solid var(--linea);
+        border-radius: 18px;
+        box-shadow: 0 16px 36px var(--sombra);
+    }
+
+    .nav-enlaces.abierto {
+        display: flex;
+    }
+
+    .nav-enlaces a {
+        padding: 0.7rem 0.9rem;
+        font-size: 1.05rem;
+    }
+
+    .nav-enlaces .separador {
+        display: none;
+    }
+
+    section {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+
+    /* Inicio: la foto pasa arriba y el texto debajo, para que se vea sin hacer scroll */
+    #inicio {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 2rem;
+        min-height: 0;
+        padding-top: 2.5rem;
+    }
+
+    .inicio-texto {
+        flex: none;
+        width: 100%;
+    }
+
+    .foto-perfil {
+        width: clamp(150px, 42vw, 240px);
+    }
+
+    /* Proyectos: imagen arriba, texto debajo, en cualquier posición de la lista */
+    .proyecto,
+    .proyecto:nth-of-type(even) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.75rem;
+    }
+
+    .proyecto-imagen,
+    .proyecto-info {
+        flex: none;
+    }
+
+    /* Habilidades: la pila, más pequeña, encima de la lista */
+    .habilidades-contenido {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .pila {
+        --lado: 10rem;
+        --separacion: 2.2rem;
+        height: 18rem;
+    }
+
+    .contacto-cta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
-[data-theme="dark"] footer {
-    border-top-color: #333;
+@media (max-width: 520px) {
+    /* Títulos de categoría encima de sus etiquetas */
+    .categoria-habilidades {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.7rem;
+    }
+
+    .categoria-habilidades h3 {
+        flex: none;
+    }
+
+    /* La marca "En curso" deja de flotar y pasa a su propia línea */
+    .estudio-estado {
+        float: none;
+        display: inline-block;
+        margin: 0 0 0.6rem;
+    }
+
+    .contacto-botones,
+    .inicio-acciones {
+        width: 100%;
+    }
+
+    .contacto-botones .boton,
+    .inicio-acciones .boton {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}
+
+
+/* =========================================================================
+    MOVIMIENTO REDUCIDO
+    Si la persona ha pedido menos animaciones en su sistema, se detienen el
+    fondo, el desplazamiento suave y las transiciones de la página.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    #fondo-blob-stage .mancha {
+        animation: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0s !important;
+    }
 }

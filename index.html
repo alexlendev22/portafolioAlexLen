@@ -4,7 +4,18 @@
     <meta charset="UTF-8">
     <!-- Hace que la web se adapte al ancho del dispositivo (responsive en móvil) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio | Alex Len</title>
+    <title>Alex Len | Full stack developer</title>
+    <!-- Texto que muestran Google y LinkedIn al enlazar la página -->
+    <meta name="description" content="Portafolio de Alex Len, programador júnior y estudiante de Ingeniería Informática con experiencia en reparación de hardware y en NTT DATA España.">
+
+    <!--
+        Tipografía IBM Plex Sans (Google Fonts). Es la única dependencia
+        externa de la página: si no carga, styles.css usa la fuente del sistema.
+        Los "preconnect" adelantan la conexión para que cargue antes.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wdth,wght@85..100,300..700&display=swap">
     <link rel="stylesheet" href="styles.css">
 
     <!--
@@ -47,18 +58,30 @@
         (fija arriba de la pantalla gracias a position: sticky en el CSS).
     -->
     <header>
-        <nav class="nav-pildora">
+        <nav class="nav-pildora" aria-label="Navegación principal">
+
+            <!--
+                Botón de menú: solo se ve en móvil (ver el CSS). Abre y cierra
+                la lista de enlaces; script.js actualiza aria-expanded para que
+                los lectores de pantalla sepan si está abierta.
+            -->
+            <button type="button" id="btn-menu" class="boton-menu" aria-expanded="false" aria-controls="nav-enlaces" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
+
             <!-- Enlaces de ancla: llevan a cada <section> por su id -->
-            <a href="#inicio">Inicio</a>
-            <span class="separador">·</span>
-            <a href="#proyectos">Proyectos</a>
-            <span class="separador">·</span>
-            <a href="#habilidades">Habilidades</a>
-            <span class="separador">·</span>
-            <a href="#estudios-academicos">Estudios académicos</a>
-            <span class="separador">·</span>
-            <a href="#contacto">Contacto</a>
-            <span class="separador">·</span>
+            <div id="nav-enlaces" class="nav-enlaces">
+                <a href="#inicio">Inicio</a>
+                <span class="separador" aria-hidden="true">·</span>
+                <a href="#proyectos">Proyectos</a>
+                <span class="separador" aria-hidden="true">·</span>
+                <a href="#habilidades">Habilidades</a>
+                <span class="separador" aria-hidden="true">·</span>
+                <a href="#estudios-academicos">Estudios académicos</a>
+                <span class="separador" aria-hidden="true">·</span>
+                <a href="#contacto">Contacto</a>
+            </div>
+            <span class="separador separador-controles" aria-hidden="true">·</span>
 
             <!--
                 Selector de idioma: de momento es solo visual (aún no cambia
@@ -68,7 +91,7 @@
             <button type="button" class="selector-idioma-visual" aria-label="Cambiar idioma">
                 <span class="icono-idioma" aria-hidden="true">文A</span> English
             </button>
-            <span class="separador">·</span>
+            <span class="separador" aria-hidden="true">·</span>
 
             <!--
                 Interruptor deslizante de tema claro/oscuro.
@@ -91,19 +114,33 @@
     <main>
     <!-- ============================================================
         1. INICIO / PRESENTACIÓN
-        Primer bloque que se ve al entrar: nombre, rol y foto.
+        Primer bloque que se ve al entrar: nombre, rol, disponibilidad,
+        las dos acciones principales y la foto (a la derecha).
         ============================================================ -->
     <section id="inicio">
         <div class="inicio-texto">
-            <h1>Hello, I'm <span class="nombre-destacado">Alex Len</span></h1>
+            <h1><span class="saludo">Hola, soy</span> <span class="nombre-destacado">Alex Len</span></h1>
             <h2>Full stack developer</h2>
             <p>
-                Programador júnior y estudiante de Ingeniería Informática de 3.er año, con experiencia en 
+                Programador júnior y estudiante de Ingeniería Informática de 3.er año, con experiencia en
                 reparación de hardware y como programador en NTT DATA España. Actualmente busco formarme
                 activamente en un entorno laboral a la vez que sigo con mis estudios.
             </p>
+            <p class="disponibilidad">Disponible para trabajar mientras estudio</p>
+            <div class="inicio-acciones">
+                <!-- Misma URL de LinkedIn que en la sección Contacto: si la cambias, cámbiala en los dos sitios -->
+                <a href="https://www.linkedin.com/in/alex-len-mu%C3%B1oz-1b26b536b/" target="_blank" rel="noopener noreferrer" class="boton boton-principal">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+                    LinkedIn
+                </a>
+                <!-- Perfil de GitHub -->
+                <a href="https://github.com/alexlendev22" target="_blank" rel="noopener noreferrer" class="boton boton-secundario">
+                    <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+                    GitHub
+                </a>
+            </div>
         </div>
-        <img src="img/foto-perfil.jpg" alt="Foto de perfil" class="foto-perfil">
+        <img src="img/foto-perfil.jpg" alt="Retrato de Alex Len sonriendo" class="foto-perfil" width="500" height="500">
     </section>
 
     <!-- ============================================================
@@ -119,6 +156,7 @@
             PLANTILLA DE PROYECTO
             Para añadir un proyecto nuevo, duplica todo el bloque <article class="proyecto">...</article>
             y cambia: la imagen, el título, las etiquetas (tecnologías) y la descripción.
+            Las tarjetas pares colocan la imagen a la derecha automáticamente (ver el CSS).
             Etiquetas: usa la clase "etiqueta" + un color, por ejemplo "etiqueta-gris", "etiqueta-morado",
             "etiqueta-azul" o "etiqueta-verde", según convenga.
             Enlaces: si no tienes demo o repositorio público, simplemente borra ese <a>.
@@ -126,33 +164,28 @@
         <article class="proyecto">
             <!-- Imagen/captura de pantalla del proyecto -->
             <div class="proyecto-imagen">
-                <img src="img/imgcarrusel1.jpg" alt="Captura del proyecto">
+                <img src="img/fisio_img.jpg" alt="Captura de Physiotherapy Assistant: vista semanal de la agenda con el calendario de citas" loading="lazy">
             </div>
             <div class="proyecto-info">
-                <h3>Nombre del proyecto</h3>
+                <h3>Physiotherapy Assistant</h3>
 
                 <!-- Etiquetas tipo "píldora" que indican tecnologías usadas -->
                 <div class="proyecto-etiquetas">
-                    <span class="etiqueta etiqueta-gris">Language 1</span>
-                    <span class="etiqueta etiqueta-morado">Language 2</span>
+                    <span class="etiqueta etiqueta-gris">Python</span>
+                    <span class="etiqueta etiqueta-morado">Django</span>
                 </div>
 
                 <p class="proyecto-descripcion">
-                    Descripción breve del proyecto: qué es, qué problema resuelve o qué hace especial,
-                    y con qué tecnologías está construido.
+                    Aplicación web para fisioterapeutas que reúne la agenda, las fichas de pacientes con historial
+                    clínico cifrado y enlaces de invitación para que cada paciente reserve su cita online.
                 </p>
 
                 <!-- Botones de enlace: icono SVG en línea + texto -->
                 <div class="proyecto-enlaces">
                     <!-- Icono de GitHub dibujado como SVG (no depende de ninguna librería externa) -->
-                    <a href="#" class="enlace-proyecto">
+                    <a href="https://github.com/alexlendev22/physiotherapy-assistant" target="_blank" rel="noopener noreferrer" class="enlace-proyecto">
                         <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
                         Código
-                    </a>
-                    <!-- Icono de flecha/enlace externo para el botón de Demo -->
-                    <a href="#" class="enlace-proyecto">
-                        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M4.72 11.28a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0Z"/><path d="M6.5 2h-1A3.5 3.5 0 0 0 2 5.5v1a.75.75 0 0 0 1.5 0v-1A2 2 0 0 1 5.5 3.5h1a.75.75 0 0 0 0-1.5Zm3 12h1A3.5 3.5 0 0 0 14 10.5v-1a.75.75 0 0 0-1.5 0v1a2 2 0 0 1-2 2h-1a.75.75 0 0 0 0 1.5Z"/></svg>
-                        Demo
                     </a>
                 </div>
             </div>
@@ -162,42 +195,68 @@
 
     <!-- ============================================================
         3. HABILIDADES
-        Categorías de habilidades técnicas, cada una con su lista
-        de tecnologías mostradas como etiquetas con contorno.
+        Se presentan como una pila "full stack": de la interfaz, arriba,
+        hasta el hardware, abajo. Cada categoría (data-capa) se corresponde
+        con una placa del dibujo (.pila): al pasar el ratón o tocar una
+        categoría, script.js levanta su placa.
+        Para añadir una tecnología, añade un <li> a la categoría que toque.
         ============================================================ -->
     <section id="habilidades">
         <h2>Habilidades</h2>
 
-        <div class="categoria-habilidades">
-            <h3>Languages</h3>
-            <ul>
-                <li>Java</li>
-                <li>C</li>
-                <li>Python</li>
-            </ul>
-        </div>
+        <div class="habilidades-contenido">
+            <!-- Dibujo decorativo: la misma información ya está en la lista de al lado -->
+            <div class="pila" aria-hidden="true">
+                <div class="pila-plano">
+                    <div class="placa" data-capa="hardware"></div>
+                    <div class="placa" data-capa="herramientas"></div>
+                    <div class="placa" data-capa="datos"></div>
+                    <div class="placa" data-capa="lenguajes"></div>
+                    <div class="placa activa" data-capa="web"></div>
+                </div>
+            </div>
 
-        <div class="categoria-habilidades">
-            <h3>Web / Mobile</h3>
-            <ul>
-                <li>HTML5</li>
-                <li>CSS3</li>
+            <div class="capas">
+                <div class="categoria-habilidades activa" data-capa="web">
+                    <h3>Web / Mobile</h3>
+                    <ul>
+                        <li>HTML5</li>
+                        <li>CSS3</li>
+                    </ul>
+                </div>
 
-            </ul>
-        </div>
+                <div class="categoria-habilidades" data-capa="lenguajes">
+                    <h3>Lenguajes</h3>
+                    <ul>
+                        <li>Java</li>
+                        <li>C</li>
+                        <li>Python</li>
+                    </ul>
+                </div>
 
-        <div class="categoria-habilidades">
-            <h3>Backend / Data</h3>
-            <ul>
-                <li>MySQL</li>
-            </ul>
-        </div>
+                <div class="categoria-habilidades" data-capa="datos">
+                    <h3>Backend y datos</h3>
+                    <ul>
+                        <li>MySQL</li>
+                    </ul>
+                </div>
 
-        <div class="categoria-habilidades">
-            <h3>Tools / Cloud</h3>
-            <ul>
-                <li>GitHub</li>
-            </ul>
+                <div class="categoria-habilidades" data-capa="herramientas">
+                    <h3>Herramientas y cloud</h3>
+                    <ul>
+                        <li>GitHub</li>
+                    </ul>
+                </div>
+
+                <div class="categoria-habilidades" data-capa="hardware">
+                    <h3>Hardware y redes</h3>
+                    <ul>
+                        <li>Reparación de hardware</li>
+                        <li>Sistemas</li>
+                        <li>Redes</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -205,27 +264,34 @@
         4. ESTUDIOS ACADÉMICOS
         Cada <article> es una tarjeta con solo el contorno visible
         (sin relleno), que cambia de color según el tema (ver CSS).
+        La línea vertical que las une marca el orden: lo más reciente arriba.
         ============================================================ -->
     <section id="estudios-academicos">
         <h2>Estudios académicos</h2>
-        <article>
-            <h3>Ingenieria informatica 3r - Tecnocampus / UOC</h3>
-            <p>Descripción breve.</p>
-        </article>
-        <article>
-            <h3>Desarroyo de Aplicaciones Multiplataforma (DAM - FPGS) - Escola PIA</h3>
-            <p>Ciclo Formativo de Grado Superior (CFGS) en Desarrollo de Aplicaciones Multiplataforma, una formación profesional de informática enfocada en crear aplicaciones para diferentes dispositivos y sistemas operativos.</p>
-        </article>
-        <article>
-            <h3>Sistemas Microinformaticos y Redes (SMX - FPGM) - Escola PIA</h3>
-            <p> formación práctica y enfocada al mundo laboral para instalar, configurar y mantener sistemas y redes informáticas</p>
-        </article>
+        <div class="linea-estudios">
+            <article class="estudio-actual">
+                <span class="estudio-estado">En curso</span>
+                <h3>Ingeniería Informática, 3.er año</h3>
+                <p class="estudio-centro">Tecnocampus / UOC</p>
+                <p>Grado universitario que estoy cursando mientras busco formarme en un entorno laboral.</p>
+            </article>
+            <article>
+                <h3>Desarrollo de Aplicaciones Multiplataforma (DAM)</h3>
+                <p class="estudio-centro">Escola PIA · FPGS</p>
+                <p>Ciclo Formativo de Grado Superior (CFGS) en Desarrollo de Aplicaciones Multiplataforma, una formación profesional de informática enfocada en crear aplicaciones para diferentes dispositivos y sistemas operativos.</p>
+            </article>
+            <article>
+                <h3>Sistemas Microinformáticos y Redes (SMX)</h3>
+                <p class="estudio-centro">Escola PIA · FPGM</p>
+                <p>Formación práctica y enfocada al mundo laboral para instalar, configurar y mantener sistemas y redes informáticas.</p>
+            </article>
+        </div>
     </section>
 
-        <!-- ============================================================
+    <!-- ============================================================
         5. CONTACTO
         Bloque de llamada a la acción: en vez de un formulario, invita a
-        contactar directamente por LinkedIn o a descargar el CV en PDF.
+        contactar directamente por LinkedIn.
         ============================================================ -->
     <section id="contacto">
         <h2>Contacto</h2>
@@ -233,14 +299,9 @@
             <p class="contacto-texto">¿Estás interesado en trabajar conmigo? Contáctame</p>
             <div class="contacto-botones">
                 <!-- Enlace al perfil de LinkedIn: cambia la URL por la tuya -->
-                <a href="https://www.linkedin.com/in/alex-len-mu%C3%B1oz-1b26b536b/" target="_blank" rel="noopener noreferrer" class="boton-contacto">
+                <a href="https://www.linkedin.com/in/alex-len-mu%C3%B1oz-1b26b536b/" target="_blank" rel="noopener noreferrer" class="boton boton-principal">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
                     LinkedIn
-                </a>
-                <!-- Descarga del CV: sustituye el href por la ruta real de tu PDF -->
-                <a href="img/CV_Alex_Len.docx.pdf" download class="boton-contacto">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3.5h8V18H8v-1.5zm0-7h4v1.5H8V9.5z"/></svg>
-                    Descargar CV
                 </a>
             </div>
         </div>
@@ -248,7 +309,7 @@
 
     </main>
 
-    <!-- Lógica de la página (formulario + tema): se carga al final para no bloquear el pintado del contenido -->
+    <!-- Lógica de la página (tema, menú móvil, enlace activo y pila de habilidades): se carga al final para no bloquear el pintado del contenido -->
     <script src="script.js"></script>
 </body>
 </html>
